@@ -93,9 +93,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.fooddelivery"
+    namespace "com.belrado.test_delivery"
     defaultConfig {
-        applicationId "com.fooddelivery"
+        applicationId "com.belrado.test_delivery"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,4 +1,4 @@
-package com.fooddelivery;
+package com.belrado.test_delivery;
 
 import android.os.Bundle;
 import com.facebook.react.ReactActivity;
