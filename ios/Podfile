@@ -62,6 +62,10 @@ target 'FoodDelivery' do
     inherit! :complete
     # Pods for testing
   end
+  
+  #pod 'NMapsMap', '3.10.1'
+  #pod 'NMapsMap','3.15.0'
+  pod 'NMapsMap'
 
   post_install do |installer|
     react_native_post_install(

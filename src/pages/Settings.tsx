@@ -47,6 +47,7 @@ export function Settings({ navigation }: HomeTabScreenProps<'Settings'>) {
     }, [accessToken, alert, dispatch]);
 
     const handleLogout = useCallback(async () => {
+        console.log(accessToken);
         try {
             dispatch(setLoading(true));
             await client.post(`${Config.API_URL}/logout`, {});
@@ -59,7 +60,7 @@ export function Settings({ navigation }: HomeTabScreenProps<'Settings'>) {
         } finally {
             dispatch(setLoading(false));
         }
-    }, []);
+    }, [accessToken]);
 
     return (
         <View style={styles.container}>

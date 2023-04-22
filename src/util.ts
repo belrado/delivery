@@ -58,10 +58,14 @@ const handleRequest = (
     config: InternalAxiosRequestConfig,
 ): InternalAxiosRequestConfig => {
     const { method, url } = config;
-    const RootState: RootState = store.getState();
+    const state: RootState = store.getState();
     logOnDev(`[API] ${method?.toUpperCase()} ${url} | Request`);
-    const jwtToken = RootState.user.accessToken ?? '';
-    config.headers.authorization = jwtToken;
+    logOnDev(`[API] ${config.headers.authorization} ${url} | Request`);
+    if (!config.headers.authorization) {
+        config.headers.authorization = `Bearer ${state.user.accessToken ?? ''}`;
+    }
+    logOnDev(`[API] ${config.headers.authorization} ${url} | Request`);
+
     return config;
 };
 
@@ -73,10 +77,7 @@ const handleResponse = <T, D>(response: AxiosResponse): AxiosResponse<T, D> => {
     return response.data.data;
 };
 
-const handleErrorResponse = async (
-    error: AxiosError | Error,
-    config: InternalAxiosRequestConfig,
-) => {
+const handleErrorResponse = async (error: AxiosError | Error) => {
     if (axios.isAxiosError(error)) {
         const { message } = error;
         const { method, url } = error.config as InternalAxiosRequestConfig;
@@ -87,22 +88,33 @@ const handleErrorResponse = async (
             );
             if (status === 419 && data.code === 'expired') {
                 logOnDev(`[API] ${method} ${url} | RefreshToken request`);
-                const originalConfig = config;
+                const originalConfig = error.config as AxiosResponse;
                 const refreshToken = await EncryptedStorage.getItem(
                     'refreshToken',
                 );
-                originalConfig.headers.authorization = refreshToken;
-                const refreshTokenResponse = await client.post<{
-                    email: string;
-                    name: string;
-                    accessToken: string;
-                }>(`${Config.API_URL}/refreshToken`, {}, originalConfig);
-                store.dispatch(
-                    setAccessToken(refreshTokenResponse.accessToken),
-                );
-                originalConfig.headers.authorization =
-                    refreshTokenResponse.accessToken;
-                return axios(originalConfig);
+                try {
+                    const refreshTokenResponse = await client.post<{
+                        email: string;
+                        name: string;
+                        accessToken: string;
+                    }>(
+                        `${Config.API_URL}/refreshToken`,
+                        {},
+                        {
+                            headers: {
+                                authorization: `Bearer ${refreshToken}`,
+                            },
+                        },
+                    );
+                    store.dispatch(
+                        setAccessToken(refreshTokenResponse.accessToken),
+                    );
+                    originalConfig.headers.authorization =
+                        refreshTokenResponse.accessToken;
+                    return axios(originalConfig);
+                } catch (e) {
+                    return Promise.reject(e);
+                }
             } else {
                 return Promise.reject(error);
             }
@@ -124,7 +136,4 @@ export const client: CustomAxiosInstance = axios.create({
 });
 
 client.interceptors.request.use(handleRequest);
-client.interceptors.response.use(
-    handleResponse,
-    async () => handleErrorResponse,
-);
+client.interceptors.response.use(handleResponse, handleErrorResponse);

@@ -490,6 +490,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2RJ6FJFWR2;
 				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=*]" = arm64;
 				INFOPLIST_FILE = FoodDelivery/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = testDelivery;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -57,8 +57,15 @@ function useSignIn() {
             );
         } catch (error) {
             if (isAxiosError(error)) {
-                const errorResponse: any = (error as AxiosError).response;
-                alert({ title: '안내', message: errorResponse.data.message });
+                console.log(error);
+                const errorResponse: any =
+                    (error as AxiosError).response ?? String(error);
+                alert({
+                    title: '안내',
+                    message: errorResponse?.data
+                        ? errorResponse.data.message
+                        : errorResponse,
+                });
             }
         } finally {
             setLoading(false);
